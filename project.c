@@ -5,29 +5,72 @@
 
 int main(int argc, char *argv[]){
 
-    FILE *fp;
+    FILE *fpin = (FILE*) NULL;
+    //FILE *fpout
     Mapa *mapatual;
-    char variantes[] = {'A','B','C'};
-    int i,j;
+    int retval = 0, resultado = 14;
+    char *filename, *token;
 
     if(argc != 2){
         printf("\nNumero de argumentos errado ou insuficiente!\n");
     }
     else{
-        fp = fopen(argv[1], "r");
-        if(fp == (FILE*) NULL){
-            printf("\nErro ao abrir o ficheiro!\n");
+        filename = argv[1];
+        printf("%s\n", argv[1]);
+        token = strtok(filename, ".");
+        token = strtok(NULL, ".");
+        if((retval = strcmp(token, "camp0")) != 0){
+            printf("\nO ficheiro tem de ser de extensao '.camp0'!\n");
             exit(EXIT_FAILURE);
         }
+        fpin = openfile(fpin, filename);
     }
 
-    mapatual = (Mapa*) malloc(sizeof(Mapa));
-
-    fscanf(fp,"%d %d %c", &(mapatual->L), &(mapatual->C), &(mapatual->variante));
+    // criar ficheiro de saida
 
 
+    while(feof(fpin) == 0){
+      mapatual = (Mapa*) malloc(sizeof(Mapa));
 
-    printf("Hello world!\n");
+      retval = lermapa(mapatual, fpin);
+      if(retval != 0){
+        printf("\nErro ao ler o ficheiro!\n");
+        exit(EXIT_FAILURE);
+      }
+
+      switch (mapatual->variante) {
+        case 'A':
+          resultado = varianteA(mapatual);
+          if((resultado != 0) && (resultado != 1)){
+            exit(EXIT_FAILURE);
+          }
+          break;
+        case 'B':
+          resultado = varianteB(mapatual);
+          if((resultado != 0) && (resultado != 1)){
+            exit(EXIT_FAILURE);
+          }
+          break;
+        case 'C':
+          resultado = varianteC(mapatual);
+          if((resultado != 0) && (resultado != 1)){
+            exit(EXIT_FAILURE);
+          }
+          break;
+        default:
+          exit(EXIT_FAILURE);
+      }
+
+      //escrever ficheiro de saida
+
+      //desalocar a estrutura
+
+    }
+
+    fclose(fpin);
+    //fclose(fpout);
+
+    printf("\nResultado: %d\n", resultado);
+
     return 0;
-
 }
