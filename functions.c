@@ -8,12 +8,25 @@ int lermapa(Mapa *maps, FILE *fp){
   char variantes[] = {'A','B','C'};
   char cret;
 
+  while(1){
+    cret = fgetc(fp);
+    if(feof(fp) != 0) return 1;
+    if(((int) cret > 48 ) && ((int) cret < 58 )){
+      fseek(fp, -1 , SEEK_CUR);
+      break;
+    }
+  }
+
+
   retval = fscanf(fp,"%d %d %c", &(maps->L), &(maps->C), &(maps->variante));
   if(retval != 3){
+    if(feof(fp) == 0){
+      return 1;
+    }
     printf("\nErro ao ler o ficheiro!\n");
     exit(EXIT_FAILURE);
   }
-  //printf("\n%d %d %c", maps->L, maps->C, maps->variante);
+  printf("\n%d %d %c ", maps->L, maps->C, maps->variante);
 
   if((maps->variante != variantes[0]) && (maps->variante != variantes[1]) && (maps->variante != variantes[2])){
     printf("\nEsta versao do projecto nao possui a variante '%c'!\n", maps->variante);
@@ -27,10 +40,11 @@ int lermapa(Mapa *maps, FILE *fp){
             printf("\nErro ao ler o ficheiro!\n");
             exit(EXIT_FAILURE);
         }
+        printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
     }
-    //while((cret = fgetc(fp)) != '\n');
   }
-  /*Alocação de memŕia e leitura de dados relativamente ao número de tendas possivéis em cada linha e coluna*/
+  printf("\n");
+  /*Alocação de memória e leitura de dados relativamente ao número de tendas possivéis em cada linha e coluna*/
   maps->TendasLinhas = (int*) malloc(sizeof(int) * maps->L);
   if(maps->TendasLinhas == (int*) NULL){
     printf("\nErro ao alocar memoria!\n");
@@ -64,7 +78,6 @@ int lermapa(Mapa *maps, FILE *fp){
   for(i = 0;i < maps->L;i++){
     maps->mapa[i] = (char*) malloc(sizeof(char) * maps->C);
     for(j = 0;j < maps->C;j++){
-        //retval = fscanf(fp,"%c", &(maps->mapa[i][j]));
         while(1){
           cret = fgetc(fp);
           if((cret == 'A') || (cret == '.') || (cret == 'T')){
@@ -72,10 +85,6 @@ int lermapa(Mapa *maps, FILE *fp){
           }
         }
         maps->mapa[i][j] = cret;
-        /*if(retval != 1){
-            printf("\nErro ao ler o ficheiro!\n");
-            exit(EXIT_FAILURE);
-        }*/
         printf("%c", maps->mapa[i][j]);
     }
     printf("\n");
@@ -84,17 +93,41 @@ int lermapa(Mapa *maps, FILE *fp){
 }
 
 int freemapa(Mapa *maps){
-  int retval = 0;
+  int retval = 0, i;
 
+  for(i=0;i<maps->L; i++){
+    free(maps->mapa[i]);
+  }
+
+  free(maps->mapa);
+  free(maps->TendasLinhas);
+  free(maps->TendasColunas);
 
   return retval;
 }
 
-FILE *openfile(FILE *fp, char *filename){
-  fp = fopen(filename, "r");
+FILE *openfile(FILE *fp, char *filename, int mode){
+  if(mode == 0){
+    fp = fopen(filename, "r");
+  }
+  else if(mode == 1){
+    fp = fopen(filename, "w");
+  }
+  else{
+    printf("\nErro ao abrir o ficheiro!\n");
+    exit(EXIT_FAILURE);
+  }
   if(fp == NULL){
     printf("\nErro ao abrir o ficheiro!\n");
     exit(EXIT_FAILURE);
   }
+  return fp;
+}
+
+FILE *writefile(FILE *fp, Mapa *maps){
+
+
+
+
   return fp;
 }

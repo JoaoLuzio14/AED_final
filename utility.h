@@ -23,6 +23,7 @@ int varianteC(Mapa *maps);
 
 int lermapa(Mapa *maps, FILE *fp);
 int freemapa(Mapa *maps);
-FILE *openfile(FILE *fp,  char *filename);
+FILE *openfile(FILE *fp, char *filename, int mode);
+FILE *writefile(FILE *fp, Mapa *maps);
 
 #endif // FUNCTIONS_H_INCLUDED
