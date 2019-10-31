@@ -15,10 +15,12 @@ int main(int argc, char *argv[]){
         printf("\nNumero de argumentos errado ou insuficiente!\n");
     }
     else{
-        filename = argv[1];
-        printf("%s\n", argv[1]);
+        filename = (char*) malloc(sizeof(argv[1]));
+        strcpy(filename, argv[1]);
         token = strtok(filename, ".");
         token = strtok(NULL, ".");
+        printf("%s\n", argv[1]);
+        free(filename);
         if((retval = strcmp(token, "camp0")) != 0){
             printf("\nO ficheiro tem de ser de extensao '.camp0'!\n");
             exit(EXIT_FAILURE);
