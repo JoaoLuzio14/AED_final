@@ -4,21 +4,37 @@
 #include "utility.h"
 
 int varianteA(Mapa *maps){
-    int resultado;
+  int sumlinhas = 0, sumcolunas = 0, ntendas = 0, narvores = 0, i, j;
 
-    resultado = 14;
+  for(i = 0; i < maps->L; i++){
+    sumlinhas += maps->TendasLinhas[i];
+  }
+  for(j = 0; j < maps->C; j++){
+    sumcolunas += maps->TendasColunas[j];
+  }
+  if(sumlinhas != sumcolunas){
+    return 0;
+  }
+  else{
+    ntendas = sumlinhas;
+  }
 
-    return resultado;
+  for(i = 0; i < maps->L; i++){
+    for(j = 0; j < maps->C; j++){
+      if(maps->mapa[i][j] == 'A') narvores++;
+    }
+  }
+  if(narvores != ntendas) return 0;
+
+  return 1;
 }
 
 int varianteB(Mapa *maps){
-    int resultado;
+  int resultado;
 
-    resultado = 14;
+  resultado = 14;
 
-
-
-    return resultado;
+  return resultado;
 }
 
 int varianteC(Mapa *maps){

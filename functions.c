@@ -124,10 +124,13 @@ FILE *openfile(FILE *fp, char *filename, int mode){
   return fp;
 }
 
-FILE *writefile(FILE *fp, Mapa *maps){
+FILE *writefile(FILE *fp, Mapa *maps, int resultado){
 
-
-
+  fprintf(fp, "%d %d %c ", maps->L, maps->C, maps->variante);
+  if(maps->variante == 'B'){
+    fprintf(fp, "%d %d ", maps->cordtenda[0], maps->cordtenda[1]);
+  }
+  fprintf(fp, "%d\n", resultado);
 
   return fp;
 }

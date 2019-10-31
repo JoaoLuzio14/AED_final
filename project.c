@@ -46,30 +46,30 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
       }
 
-      /*switch (mapatual->variante) {
+      switch (mapatual->variante) {
         case 'A':
           resultado = varianteA(mapatual);
-          if((resultado != 0) && (resultado != 1)){
+          /*if((resultado != 0) && (resultado != 1)){
             exit(EXIT_FAILURE);
-          }
+          }*/
           break;
         case 'B':
           resultado = varianteB(mapatual);
-          if((resultado != 0) && (resultado != 1)){
+          /*if((resultado != 0) && (resultado != 1)){
             exit(EXIT_FAILURE);
-          }
+          }*/
           break;
         case 'C':
           resultado = varianteC(mapatual);
-          if((resultado != 0) && (resultado != 1)){
+          /*if((resultado != 0) && (resultado != 1)){
             exit(EXIT_FAILURE);
-          }
+          }*/
           break;
         default:
           exit(EXIT_FAILURE);
-      }*/
+      }
 
-      fpout = writefile(fpout, mapatual);
+      fpout = writefile(fpout, mapatual, resultado);
 
       retval = freemapa(mapatual);
       if(retval != 0){
@@ -82,8 +82,6 @@ int main(int argc, char *argv[]){
     free(mapatual);
     fclose(fpin);
     fclose(fpout);
-
-    printf("\nResultado: %d\n", resultado);
 
     return 0;
 }
