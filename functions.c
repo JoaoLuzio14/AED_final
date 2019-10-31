@@ -80,7 +80,7 @@ int freemapa(Mapa *maps){
 
 FILE *openfile(FILE *fp, char *filename){
   fp = fopen(filename, "r");
-  if(fp == (FILE*) NULL){
+  if(fp == NULL){
     printf("\nErro ao abrir o ficheiro!\n");
     exit(EXIT_FAILURE);
   }
