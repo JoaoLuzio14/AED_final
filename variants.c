@@ -65,6 +65,5 @@ int varianteC(Mapa *maps){
 
     resultado = 14;
 
-
     return resultado;
 }

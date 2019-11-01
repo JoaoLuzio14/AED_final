@@ -17,7 +17,6 @@ int lermapa(Mapa *maps, FILE *fp){
     }
   }
 
-
   retval = fscanf(fp,"%d %d %c", &(maps->L), &(maps->C), &(maps->variante));
   if(retval != 3){
     if(feof(fp) == 0){
@@ -28,22 +27,16 @@ int lermapa(Mapa *maps, FILE *fp){
   }
   printf("\n%d %d %c ", maps->L, maps->C, maps->variante);
 
-  if((maps->variante != variantes[0]) && (maps->variante != variantes[1]) && (maps->variante != variantes[2])){
-    printf("\nEsta versao do projecto nao possui a variante '%c'!\n", maps->variante);
-    free(maps);
-    exit(EXIT_FAILURE);
-  }
-  else{
-    if(maps->variante == variantes[1]){
-        retval = fscanf(fp,"%d %d", &(maps->cordtenda[0]), &(maps->cordtenda[1]));
-        if(retval != 2){
-            printf("\nErro ao ler o ficheiro!\n");
-            exit(EXIT_FAILURE);
-        }
-        printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
-    }
+  if(maps->variante == variantes[1]){
+      retval = fscanf(fp,"%d %d", &(maps->cordtenda[0]), &(maps->cordtenda[1]));
+      if(retval != 2){
+          printf("\nErro ao ler o ficheiro!\n");
+          exit(EXIT_FAILURE);
+      }
+      printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
   }
   printf("\n");
+
   /*Alocação de memória e leitura de dados relativamente ao número de tendas possivéis em cada linha e coluna*/
   maps->TendasLinhas = (int*) malloc(sizeof(int) * maps->L);
   if(maps->TendasLinhas == (int*) NULL){

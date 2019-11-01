@@ -1,3 +1,10 @@
+/************************************************/
+/*     Projecto AED - 1ª Fase de Submissão      */
+/*          Semestre 1 - 2019/2020              */
+/*João Luzio (IST193096) & José Reis (IST193105)*/
+/*               IST - MEEC                     */
+/************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,15 +56,15 @@ int main(int argc, char *argv[]){
       switch (mapatual->variante) {
         case 'A':
           resultado = varianteA(mapatual);
-          /*if((resultado != 0) && (resultado != 1)){
+          if((resultado != 0) && (resultado != 1)){
             exit(EXIT_FAILURE);
-          }*/
+          }
           break;
         case 'B':
           resultado = varianteB(mapatual);
-          /*if((resultado != 0) && (resultado != 1)){
+          if((resultado != 0) && (resultado != 1) && (resultado != -1)){
             exit(EXIT_FAILURE);
-          }*/
+          }
           break;
         case 'C':
           resultado = varianteC(mapatual);
@@ -66,7 +73,8 @@ int main(int argc, char *argv[]){
           }*/
           break;
         default:
-          exit(EXIT_FAILURE);
+          resultado = -1;
+          break;
       }
 
       fpout = writefile(fpout, mapatual, resultado);
