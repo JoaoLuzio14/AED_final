@@ -49,9 +49,31 @@ int varianteB(Mapa *maps){
 }
 
 int varianteC(Mapa *maps){
-    int resultado;
+    int resultado = 0, i, j, *countlinhas, *countcolunas;
 
-    resultado = 14;
+    countlinhas = (int*) calloc(sizeof(int) * maps->L);
+    countcolunas = (int*) calloc(sizeof(int) * maps->C);
+
+    for(i = 0;i < maps->L;i++){
+      for(j = 0;j < maps->C;j++){
+        if(maps->mapa[i][j] == 'T'){
+          //Algoritmo
+          countlinhas[i]++;
+          countcolunas[j]++;
+        }
+        if(resultado == 1) break;
+      }
+      if(resultado == 1) break;
+    }
+
+    for(i = 0;i < maps->L;i++){
+      if(countlinhas[i] > TendasLinhas[i]) resultado = 1;
+      if(resultado == 1) break;
+    }
+    for(j = 0;j < maps->C;j++){
+      if(countcolunas[j] > TendasColunas[j]) resultado = 1;
+      if(resultado == 1) break;
+    }
 
     return resultado;
 }
