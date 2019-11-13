@@ -3,7 +3,7 @@
 #include <string.h>
 #include "utility.h"
 
-int lermapa(Mapa *maps, FILE *fp){
+int lermapa(Mapa *maps, FILE *fp, int *mode){
   int retval = 0, i, j;
   char variantes[] = {'A','B','C'};
   char cret;
@@ -28,12 +28,19 @@ int lermapa(Mapa *maps, FILE *fp){
   //printf("\n%d %d %c ", maps->L, maps->C, maps->variante);
 
   if(maps->variante == variantes[1]){
+      *mode = 0;
       retval = fscanf(fp,"%d %d", &(maps->cordtenda[0]), &(maps->cordtenda[1]));
       if(retval != 2){
           //printf("\nErro ao ler o ficheiro!\n");
           exit(0);
       }
-      //printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
+  //printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
+  }
+  else if(maps->variante == variantes[0]){
+    *mode = 0;
+  }
+  else{
+    *mode = 1;
   }
   //printf("\n");
 
@@ -67,32 +74,36 @@ int lermapa(Mapa *maps, FILE *fp){
   }
   //printf("\n");
   /*Alocação de memória e leitura do mapa de jogo*/
-  maps->mapa = (char**) malloc(sizeof(char*) * maps->L);
-  for(i = 0;i < maps->L;i++){
-    maps->mapa[i] = (char*) malloc(sizeof(char) * maps->C);
-    for(j = 0;j < maps->C;j++){
-        while(1){
-          cret = fgetc(fp);
-          if((cret == 'A') || (cret == '.') || (cret == 'T')){
-            break;
+  if(*mode == 1){
+    maps->mapa = (char**) malloc(sizeof(char*) * maps->L);
+    for(i = 0;i < maps->L;i++){
+      maps->mapa[i] = (char*) malloc(sizeof(char) * maps->C);
+      for(j = 0;j < maps->C;j++){
+          while(1){
+            cret = fgetc(fp);
+            if((cret == 'A') || (cret == '.') || (cret == 'T')){
+              break;
+            }
           }
-        }
-        maps->mapa[i][j] = cret;
-        //printf("%c", maps->mapa[i][j]);
+          maps->mapa[i][j] = cret;
+          //printf("%c", maps->mapa[i][j]);
+      }
+      //printf("\n");
     }
-    //printf("\n");
   }
   return 0;
 }
 
-int freemapa(Mapa *maps){
+int freemapa(Mapa *maps, int mode){
   int retval = 0, i;
 
-  for(i=0;i<maps->L; i++){
-    free(maps->mapa[i]);
+  if(mode == 1){
+    for(i=0;i<maps->L; i++){
+      free(maps->mapa[i]);
+    }
+    free(maps->mapa);
   }
 
-  free(maps->mapa);
   free(maps->TendasLinhas);
   free(maps->TendasColunas);
 

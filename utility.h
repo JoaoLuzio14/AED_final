@@ -17,15 +17,16 @@ typedef struct Jogo{
     int cordtenda[2]; //Guarda as coordenadas de uma tenda para ser testada;
 }Mapa;
 
-int varianteA(Mapa *maps);
-int varianteB(Mapa *maps);
+FILE *varianteA(Mapa *maps, FILE *fp, int *resultado);
+FILE *varianteB(Mapa *maps, FILE *fp, int *resultado);
 int varianteC(Mapa *maps);
 
-int lermapa(Mapa *maps, FILE *fp);
-int freemapa(Mapa *maps);
+int lermapa(Mapa *maps, FILE *fp, int *mode);
+int freemapa(Mapa *maps, int mode);
 FILE *openfile(FILE *fp, char *filename, int mode);
 FILE *writefile(FILE *fp, Mapa *maps, int resultado);
 int RodeiaTenda(Mapa *maps, int a, int b);
 int Adjobj(Mapa *maps, int a, int b, char c);
+int AdjobjC(Mapa *maps, int a, int b, char c, int *x, int *y, int *soma);
 
 #endif // FUNCTIONS_H_INCLUDED

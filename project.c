@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
     FILE *fpin = (FILE*) NULL;
     FILE *fpout = (FILE*) NULL;
     Mapa *mapatual;
-    int retval = 0, resultado = 14;
+    int retval = 0, resultado = 14, modo = 14;
     char *filename, *fileout, *token;
 
     if(argc != 2){
@@ -27,9 +27,14 @@ int main(int argc, char *argv[]){
         strcpy(filename, argv[1]);
         token = strtok(filename, ".");
         token = strtok(NULL, ".");
-        if((retval = strcmp(token, "camp0")) != 0){
+        while((retval = strcmp(token, "camp0")) != 0){
+          if(token == NULL){
             //printf("\nO ficheiro tem de ser de extensao '.camp0'!\n");
             exit(0);
+          }
+          else{
+            token = strtok(NULL, ".");
+          }
         }
         fpin = openfile(fpin, argv[1], 0);
     }
@@ -45,33 +50,33 @@ int main(int argc, char *argv[]){
 
     while(feof(fpin) == 0){
 
-      retval = lermapa(mapatual, fpin);
+      retval = lermapa(mapatual, fpin, &modo);
       if(retval != 0){
         if(retval == 1){
           break;
         }
-        printf("\nErro ao ler o ficheiro!\n");
-        exit(EXIT_FAILURE);
+        //printf("\nErro ao ler o ficheiro!\n");
+        exit(0);
       }
 
       switch (mapatual->variante) {
         case 'A':
-          resultado = varianteA(mapatual);
+          fpin = varianteA(mapatual, fpin, &resultado);
           if((resultado != 0) && (resultado != 1)){
             exit(0);
           }
           break;
         case 'B':
-          resultado = varianteB(mapatual);
+          fpin = varianteB(mapatual, fpin, &resultado);
           if((resultado != 0) && (resultado != 1) && (resultado != -1)){
             exit(0);
           }
           break;
         case 'C':
           resultado = varianteC(mapatual);
-          /*if((resultado != 0) && (resultado != 1)){
-            exit(EXIT_FAILURE);
-          }*/
+          if((resultado != 0) && (resultado != 1)){
+            exit(0);
+          }
           break;
         default:
           resultado = -1;
@@ -80,12 +85,11 @@ int main(int argc, char *argv[]){
 
       fpout = writefile(fpout, mapatual, resultado);
 
-      retval = freemapa(mapatual);
+      retval = freemapa(mapatual, modo);
       if(retval != 0){
         //printf("\nErro a libertar a memoria!");
         exit(0);
       }
-
     }
 
     free(mapatual);
