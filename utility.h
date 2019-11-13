@@ -26,7 +26,6 @@ int freemapa(Mapa *maps, int mode);
 FILE *openfile(FILE *fp, char *filename, int mode);
 FILE *writefile(FILE *fp, Mapa *maps, int resultado);
 int RodeiaTenda(Mapa *maps, int a, int b);
-int Adjobj(Mapa *maps, int a, int b, char c);
 int AdjobjC(Mapa *maps, int a, int b, char c, int *x, int *y, int *soma);
 
 #endif // FUNCTIONS_H_INCLUDED

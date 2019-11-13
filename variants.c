@@ -57,8 +57,11 @@ FILE *varianteB(Mapa *maps, FILE *fp, int *resultado){
           }
         }
         if(i == maps->cordtenda[0] - 1){
-          if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1) || (j == maps->cordtenda[1])){
+          if(j == maps->cordtenda[1]){
             if(obj == 'A') arvoreadj = 1;
+            if(obj == 'T') tendadj = 1;
+          }
+          else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
             if(obj == 'T') tendadj = 1;
           }
         }
@@ -68,13 +71,16 @@ FILE *varianteB(Mapa *maps, FILE *fp, int *resultado){
             else if(obj == 'T') *resultado = 2;
           }
           else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
-            if(obj == 'A') arvoreadj = 1;
             if(obj == 'T') tendadj = 1;
+            if(obj == 'A') arvoreadj = 1;
           }
         }
         else if(i == maps->cordtenda[0] + 1){
-          if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1) || (j == maps->cordtenda[1])){
+          if(j == maps->cordtenda[1]){
             if(obj == 'A') arvoreadj = 1;
+            if(obj == 'T') tendadj = 1;
+          }
+          else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
             if(obj == 'T') tendadj = 1;
           }
         }
@@ -191,19 +197,6 @@ int RodeiaTenda(Mapa *maps, int a, int b){
     }
   }
   return 0;
-}
-
-int Adjobj(Mapa *maps, int a, int b, char c){
-	int i, j;
-
-	for(i=-1;i<2;i++){
-    for(j=-1;j<2;j++){
-      if(((a== 0) && (i==-1)) || ((maps->L == 1) && ((i==-1) || (i==1))) || ((maps->C == 1) && ((j==-1) || (j==1)))  || ((b==0) && (j==-1)) || ((a== ((maps->L) - 1)) && (i==1)) || ((b== ((maps->C) - 1)) && (j==1))) continue;
-      if((maps->mapa[a+ i][b+j] == c)&&(((i==0)&&(j!=0))||((j==0) && (i!=0)))) return 0;
-    }
-  }
-
-  return 1;
 }
 
 int AdjobjC(Mapa *maps, int a, int b, char c, int *x, int *y, int *soma){
