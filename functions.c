@@ -3,9 +3,8 @@
 #include <string.h>
 #include "utility.h"
 
-int lermapa(Mapa *maps, FILE *fp, int *mode){
-  int retval = 0, i, j;
-  char variantes[] = {'A','B','C'};
+int lermapa(Mapa *maps, FILE *fp){
+  int retval = 0, i;
   char cret;
 
   while(1){
@@ -16,42 +15,19 @@ int lermapa(Mapa *maps, FILE *fp, int *mode){
       break;
     }
   }
-
-  retval = fscanf(fp,"%d %d %c", &(maps->L), &(maps->C), &(maps->variante));
-  if(retval != 3){
+  retval = fscanf(fp,"%d %d ", &(maps->L), &(maps->C));
+  if(retval != 2){
     if(feof(fp) == 0){
       return 1;
     }
     //printf("\nErro ao ler o ficheiro!\n");
     exit(0);
   }
-  //printf("\n%d %d %c ", maps->L, maps->C, maps->variante);
-
-  if(maps->variante == variantes[1]){
-      *mode = 0;
-      retval = fscanf(fp,"%d %d", &(maps->cordtenda[0]), &(maps->cordtenda[1]));
-      if(retval != 2){
-          //printf("\nErro ao ler o ficheiro!\n");
-          exit(0);
-      }
-  //printf("%d %d", maps->cordtenda[0], maps->cordtenda[1]);
-  }
-  else if(maps->variante == variantes[0]){
-    *mode = 0;
-  }
-  else{
-    *mode = 1;
-  }
-  //printf("\n");
+  printf("\n%d %d\n", maps->L, maps->C);
 
   /*Alocação de memória e leitura de dados relativamente ao número de tendas possivéis em cada linha e coluna*/
   maps->TendasLinhas = (int*) malloc(sizeof(int) * maps->L);
   if(maps->TendasLinhas == (int*) NULL){
-    //printf("\nErro ao alocar memoria!\n");
-    exit(0);
-  }
-  maps->TendasColunas = (int*) malloc(sizeof(int) * maps->C);
-  if(maps->TendasColunas == (int*) NULL){
     //printf("\nErro ao alocar memoria!\n");
     exit(0);
   }
@@ -61,52 +37,49 @@ int lermapa(Mapa *maps, FILE *fp, int *mode){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
     }
-    //printf("%d ", maps->TendasLinhas[i]);
+    printf("%d ", maps->TendasLinhas[i]);
   }
-  //printf("\n");
-  for(j = 0;j < maps->C;j++){
-    retval = fscanf(fp,"%d ", &(maps->TendasColunas[j]));
+  printf("\n");
+  maps->TendasColunas = (int*) malloc(sizeof(int) * maps->C);
+  if(maps->TendasColunas == (int*) NULL){
+    //printf("\nErro ao alocar memoria!\n");
+    exit(0);
+  }
+  for(i = 0;i < maps->C;i++){
+    retval = fscanf(fp,"%d ", &(maps->TendasColunas[i]));
     if(retval != 1){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
     }
-    //printf("%d ", maps->TendasColunas[j]);
+    printf("%d ", maps->TendasColunas[i]);
   }
-  //printf("\n");
+  printf("\n");
   /*Alocação de memória e leitura do mapa de jogo*/
-  if(*mode == 1){
-    maps->mapa = (char**) malloc(sizeof(char*) * maps->L);
-    for(i = 0;i < maps->L;i++){
-      maps->mapa[i] = (char*) malloc(sizeof(char) * maps->C);
-      for(j = 0;j < maps->C;j++){
-          while(1){
-            cret = fgetc(fp);
-            if((cret == 'A') || (cret == '.') || (cret == 'T')){
-              break;
-            }
-          }
-          maps->mapa[i][j] = cret;
-          //printf("%c", maps->mapa[i][j]);
+  maps->mapa = (char**) malloc(sizeof(char*) * maps->L);
+  for(i = 0;i < maps->L;i++){
+    while(1){
+      cret = fgetc(fp);
+      if((cret == 'A') || (cret == '.') || (cret == 'T')){
+        break;
       }
-      //printf("\n");
     }
+    fseek(fp, -1 , SEEK_CUR);
+    retval = fscanf(fp,"%ms", &(maps->mapa[i]));
+    if(retval != 1){
+      exit(0);
+    }
+    printf("%s", maps->mapa[i]);
+    printf("\n");
   }
   return 0;
 }
 
-int freemapa(Mapa *maps, int mode){
+int freemapa(Mapa *maps){
   int retval = 0, i;
-
-  if(mode == 1){
-    for(i=0;i<maps->L; i++){
-      free(maps->mapa[i]);
-    }
-    free(maps->mapa);
-  }
-
+  for(i=0;i<maps->L; i++) free(maps->mapa[i]);
+  free(maps->mapa);
   free(maps->TendasLinhas);
   free(maps->TendasColunas);
-
   return retval;
 }
 
@@ -131,12 +104,14 @@ FILE *openfile(FILE *fp, char *filename, int mode){
 }
 
 FILE *writefile(FILE *fp, Mapa *maps, int resultado){
-
-  fprintf(fp, "%d %d %c ", maps->L, maps->C, maps->variante);
-  if(maps->variante == 'B'){
-    fprintf(fp, "%d %d ", maps->cordtenda[0], maps->cordtenda[1]);
+  int i;
+  fprintf(fp, "%d %d ", maps->L, maps->C);
+  fprintf(fp, "%d\n", resultado);
+  if(resultado == 1){
+    for(i = 0;i < maps->L;i++){
+      fprintf(fp, "%s\n", maps->mapa[i]);
+    }
   }
-  fprintf(fp, "%d\n\n", resultado);
-
+  fprintf(fp,"\n");
   return fp;
 }

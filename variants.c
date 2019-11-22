@@ -3,9 +3,99 @@
 #include <string.h>
 #include "utility.h"
 
-FILE *varianteA(Mapa *maps, FILE *fp, int *resultado){
+int Solver(Mapa *maps){
+  int i, j, resultado = 14, *countlinhas, *countcolunas;
+
+  countlinhas = (int*) calloc(maps->L ,sizeof(int));
+  countcolunas = (int*) calloc(maps->C, sizeof(int));
+
+  for(i = 0;i < maps->L;i++){
+    //printf("\n");
+    for(j = 0;j < maps->C;j++){
+      resultado = varianteB(maps, i, j);
+      if(resultado == 2){
+        countlinhas[i]++;
+        countcolunas[j]++;
+      }
+      else if(resultado == 0) maps->mapa[i][j] = 'O';
+      //printf("%c", maps->mapa[i][j]);
+    }
+  }
+
+  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas);
+
+  free(countlinhas);
+  free(countcolunas);
+
+  return resultado;
+}
+
+int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY){
+  int nextX, nextY, breaker = 0, verif = 0, resultado = 0;
+  nextX = cordX;
+  if((cordX == 0) && (cordY == 0)) nextY = cordY;
+  else if(cordY == (maps->C - 1)){
+    nextY = 0;
+    nextX++;
+  }
+  else nextY = cordY + 1;
+
+  while(nextX < maps->L){
+    while(nextY < maps->C){
+      if(maps->mapa[nextX][nextY] == 'A'){
+        breaker = 1;
+        break;
+      }
+      nextY++;
+    }
+    if(breaker == 1) break;
+    nextY = 0;
+    nextX++;
+  }
+  if(breaker == 0) return 1;
+
+  //pra cima
+  if(nextX > 0){
+    if(maps->mapa[nextX - 1][nextY] == 'O'){
+
+
+    }
+  }
+  //pra esquerda
+  if(nextY > 0){
+    if(maps->mapa[nextX][nextY - 1] == 'O'){
+      if(((verif = RodeiaTenda(maps, nextX, nextY - 1)) == 0) && (maps->TendasLinhas[nextX] >= countX[nextX] + 1) && (maps->TendasColunas[nextY] >= countY[nextY] + 1)){
+        maps->mapa[nextX][nextY - 1] = 'T';
+        countX[nextX]++;
+        countY[nextY]++;
+        resultado = PlaceTents(maps, nextX, nextY, countX, countY);
+        if(resultado == 1) return 1;
+        else{
+          maps->mapa[nextX][nextY - 1] = 'O';
+          countX[nextX]--;
+          countY[nextY]--;
+        }
+      }
+    }
+  }
+  //pra baixo
+  if(nextX < (maps->L - 1)){
+    if(maps->mapa[nextX + 1][nextY] == 'O'){
+
+    }
+  }
+  //pra direita
+  if(nextY < (maps->C - 1)){
+    if(maps->mapa[nextX][nextY + 1] == 'O'){
+
+    }
+  }
+
+  return 0;
+}
+
+int varianteA(Mapa *maps){
   int sumlinhas = 0, sumcolunas = 0, ntendas = 0, narvores = 0, i, j;
-  char obj;
 
   for(i = 0; i < maps->L; i++) sumlinhas += maps->TendasLinhas[i];
   for(j = 0; j < maps->C; j++) sumcolunas += maps->TendasColunas[j];
@@ -14,206 +104,53 @@ FILE *varianteA(Mapa *maps, FILE *fp, int *resultado){
 
   for(i = 0; i < maps->L; i++){
     for(j = 0; j < maps->C; j++){
-      while(1){
-        obj = fgetc(fp);
-        if((obj == 'A') || (obj == '.') || (obj == 'T')){
-          break;
-        }
-      }
-      if(obj == 'A') narvores++;
+      if(maps->mapa[i][j] == 'A') narvores++;
     }
   }
-  if(narvores != ntendas){
-    *resultado = 0;
-  }
-  else{
-    *resultado = 1;
-  }
-  return fp;
+
+  if(narvores < ntendas) return 0;
+  else return 1;
 }
 
-FILE *varianteB(Mapa *maps, FILE *fp, int *resultado){
-  int i, j, arvoreadj = 0, tendadj = 0, *countlinhas, *countcolunas;
-  char obj;
-
-  if((maps->cordtenda[0]< 0) || (maps->cordtenda[0]>= maps->L) || (maps->cordtenda[1]< 0) || (maps->cordtenda[1]>= maps->C)){
-    *resultado = -1;
-    return fp;
-  }
-
-  countlinhas = (int*) calloc(maps->L, sizeof(int));
-  countcolunas = (int*) calloc(maps->C, sizeof(int));
-
-  for(i = 0;i < maps->L;i++){
-    for(j = 0;j < maps->C;j++){
-        while(1){
-          obj = fgetc(fp);
-          if((obj == 'A') || (obj == '.') || (obj == 'T')){
-            if(obj == 'T'){
-              countlinhas[i]++;
-              countcolunas[j]++;
-            }
-            break;
-          }
-        }
-        if(i == maps->cordtenda[0] - 1){
-          if(j == maps->cordtenda[1]){
-            if(obj == 'A') arvoreadj = 1;
-            if(obj == 'T') tendadj = 1;
-          }
-          else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
-            if(obj == 'T') tendadj = 1;
-          }
-        }
-        else if(i == maps->cordtenda[0]){
-          if(j == maps->cordtenda[1]){
-            if(obj == 'A') *resultado = 3;
-            else if(obj == 'T') *resultado = 2;
-          }
-          else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
-            if(obj == 'T') tendadj = 1;
-            if(obj == 'A') arvoreadj = 1;
-          }
-        }
-        else if(i == maps->cordtenda[0] + 1){
-          if(j == maps->cordtenda[1]){
-            if(obj == 'A') arvoreadj = 1;
-            if(obj == 'T') tendadj = 1;
-          }
-          else if((j == maps->cordtenda[1] - 1) || (j == maps->cordtenda[1] + 1)){
-            if(obj == 'T') tendadj = 1;
-          }
-        }
-    }
-  }
-
-  for(i = 0;i < maps->L;i++){
-    if(countlinhas[i] > maps->TendasLinhas[i]) *resultado = 1;
-    if(*resultado == 1) break;
-  }
-  for(j = 0;j < maps->C;j++){
-    if(countcolunas[j] > maps->TendasColunas[j]) *resultado = 1;
-    if(*resultado == 1) break;
-  }
-
-  free(countlinhas);
-  free(countcolunas);
-
-  if(*resultado == 2){
-    *resultado = 0;
-    return fp;
-  }
-  if(*resultado == 3){
-    *resultado = 1;
-    return fp;
-  }
-  if((arvoreadj == 0) || (tendadj == 1)) *resultado = 1;
-  else *resultado = 0;
-
-  return fp;
-}
-
-int varianteC(Mapa *maps){
-    int resultado = 0, i, j, *countlinhas, *countcolunas, x, y,a1=0,a2=0, aux, soma,t=0, flag=0;
-
-	   //printf("NOVO");
-    countlinhas = (int*) calloc(maps->L ,sizeof(int));
-    countcolunas = (int*) calloc(maps->C, sizeof(int));
-
-    while(t!=0||flag==0){
-
-      for(i = 0;i < maps->L;i++){
-        for(j = 0;j < maps->C;j++){
-  	       x = i;
-  	       y = j;
-  	       //printf("%d\n",resultado);
-  	       if(((maps->mapa[i][j]== 'T')||(maps->mapa[i][j]== 't'))&& flag==0) t++;
-           //printf("x:%d y:%d\n", x,y);
-           while(maps->mapa[x][y] == 'T'){
-  	          aux = AdjobjC(maps, x, y, 'A', &a1, &a2, &soma);
-              //printf("t:%d\n", t);
-              //printf("soma: %d\n", soma);
-  	          if(soma==0){
-  	             resultado = 1;
-  	             break;
-              }
-  	          if(soma>1 && flag == 0)break;
-  	          t--;
-              //printf("passou a soma \n");
-  	          maps->mapa[x][y] = 't';
-              countlinhas[x]++;
-              countcolunas[y]++;
-              //printf("countlinhas[%d]=%d\n", x, countlinhas[x]);
-  	          aux = RodeiaTenda(maps, x, y);
-  	  	      if(aux ==1){
-  		            resultado = 1;
-  		            break;
-  		        }
-              maps->mapa[a1][a2]='a';
-  	          aux = AdjobjC(maps, a1, a2, 'T', &x, &y, &soma);
-           }
-  	       a1=i;
-  	       a2=j;
-  	       while(maps->mapa[a1][a2]== 'A'){
-  	          aux=AdjobjC(maps, a1, a2, 'T', &x, &y, &soma);
-  		         if(soma!=1)break;
-  	           //printf("soma %c: %d", maps->mapa[a1][a2], soma);
-  	           //printf("detetou arvore singular\n");
-  	           maps->mapa[a1][a2] = 'a';
-  	           maps->mapa[x][y]='t';
-  	           t--;
-  		         aux=AdjobjC(maps, x, y, 'A', &a1, &a2, &soma);
-  		         if(soma!=1) break;
-  	       }
-           if(resultado == 1) break;
-        }
-        if(resultado == 1) break;
-      }
-      //printf("\ntf:%d\n",t);
-      //if(flag==1) exit(0);
-      flag=1;
-      //printf("%d\n",resultado);
-      if(resultado==1) break;
-    }
-    for(i = 0;i < maps->L;i++){
-      if(countlinhas[i] > maps->TendasLinhas[i]) resultado = 1;
-      if(resultado == 1) break;
-    }
-    for(j = 0;j < maps->C;j++){
-      if(countcolunas[j] > maps->TendasColunas[j]) resultado = 1;
-      if(resultado == 1) break;
-    }
-	  free(countlinhas);
-	  free(countcolunas);
-    return resultado;
+int varianteB(Mapa *maps, int cordX, int cordY){
+  int tendavolta = 0, arvoreadj = 0;
+  if((cordX < 0) || (cordX >= maps->L) || (cordY < 0) || (cordY >= maps->C)) return 1;
+  if(maps->mapa[cordX][cordY] == 'A') return 1;
+  else if(maps->mapa[cordX][cordY] == 'T') return 2;
+  if((tendavolta = RodeiaTenda(maps, cordX, cordY)) == 1) return 1;
+  else if((arvoreadj = Adjobj(maps, cordX, cordY)) == 1) return 1;
+  else return 0;
 }
 
 int RodeiaTenda(Mapa *maps, int a, int b){
   int i,j;
   for(i=-1;i<2;i++){
     for(j=-1;j<2;j++){
-      if(((a== 0) && (i==-1)) || ((b==0) && (j==-1)) || ((maps->C == 1) && ((j==-1) || (j==1))) || ((maps->L == 1) && ((i==-1) || (i==1))) || ((a== ((maps->L) - 1)) && (i==1)) || ((b== ((maps->C) - 1)) && (j==1))) continue;
-      if((maps->mapa[a+ i][b+j] == 'T')) return 1;
+      if(((a == 0) && (i==-1)) || ((b==0) && (j==-1)) || ((a == ((maps->L) - 1)) && (i==1)) || ((b == ((maps->C) - 1)) && (j == 1))) continue;
+      if((maps->mapa[a + i][b + j] == 'T') && ((i!=0) && (j!=0))) return 1;
     }
   }
   return 0;
 }
 
-int AdjobjC(Mapa *maps, int a, int b, char c, int *x, int *y, int *soma){
-  int i, j;
-
-  *soma = 0;
-
-  for(i=-1;i<2;i++){
-    for(j=-1;j<2;j++){
-      if(((a== 0) && (i==-1)) || ((maps->L == 1) && ((i==-1) || (i==1))) || ((maps->C == 1) && ((j==-1) || (j==1)))  || ((b==0) && (j==-1)) || ((a== ((maps->L) - 1)) && (i==1)) || ((b== ((maps->C) - 1)) && (j==1))) continue;
-      if((maps->mapa[a+ i][b+j] == c)&&(((i==0)&&(j!=0))||((j==0) && (i!=0)))){
-        *x=a+i;
-        *y=b+j;
-        *soma = *soma +1;
-      }
-    }
+int Adjobj(Mapa *maps, int a, int b){
+  int detetorarvore = 0;
+  //pra cima
+  if(a > 0){
+    if(maps->mapa[a - 1][b] == 'A') detetorarvore = 1;
   }
-  if(*soma!=0)return 0;
-  return 1;
+  //pra esquerda
+  if(b > 0){
+    if(maps->mapa[a][b - 1] == 'A') detetorarvore = 1;
+  }
+  //pra baixo
+  if(a < (maps->L - 1)){
+    if(maps->mapa[a + 1][b] == 'A') detetorarvore = 1;
+  }
+  //pra direita
+  if(b < (maps->C - 1)){
+    if(maps->mapa[a][b + 1] == 'A') detetorarvore = 1;
+  }
+  if(detetorarvore == 0) return 1;
+  else return 0;
 }

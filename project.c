@@ -15,8 +15,9 @@ int main(int argc, char *argv[]){
     FILE *fpin = (FILE*) NULL;
     FILE *fpout = (FILE*) NULL;
     Mapa *mapatual;
-    int retval = 0, resultado = 14, modo = 14;
+    int retval = 0, resultado = 14;
     char *filename, *fileout, *token;
+    const char ch = '.';
 
     if(argc != 2){
         //printf("\nNumero de argumentos errado ou insuficiente!\n");
@@ -25,16 +26,12 @@ int main(int argc, char *argv[]){
     else{
         filename = (char*) malloc(strlen(argv[1]) + 1);
         strcpy(filename, argv[1]);
-        token = strtok(filename, ".");
-        token = strtok(NULL, ".");
-        while((retval = strcmp(token, "camp0")) != 0){
-          if(token == NULL){
-            //printf("\nO ficheiro tem de ser de extensao '.camp0'!\n");
+        token = strrchr(filename, ch);
+        if((retval = strcmp(token, ".camp0")) != 0){
             exit(0);
-          }
-          else{
-            token = strtok(NULL, ".");
-          }
+        }
+        else{
+          token[0] = '\0';
         }
         fpin = openfile(fpin, argv[1], 0);
     }
@@ -46,11 +43,12 @@ int main(int argc, char *argv[]){
     fpout = openfile(fpout, filename, 1);
     free(fileout);
 
+
     mapatual = (Mapa*) malloc(sizeof(Mapa));
 
     while(feof(fpin) == 0){
 
-      retval = lermapa(mapatual, fpin, &modo);
+      retval = lermapa(mapatual, fpin);
       if(retval != 0){
         if(retval == 1){
           break;
@@ -58,34 +56,22 @@ int main(int argc, char *argv[]){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
       }
-
-      switch (mapatual->variante) {
-        case 'A':
-          fpin = varianteA(mapatual, fpin, &resultado);
-          if((resultado != 0) && (resultado != 1)){
-            exit(0);
-          }
-          break;
-        case 'B':
-          fpin = varianteB(mapatual, fpin, &resultado);
-          if((resultado != 0) && (resultado != 1) && (resultado != -1)){
-            exit(0);
-          }
-          break;
-        case 'C':
-          resultado = varianteC(mapatual);
-          if((resultado != 0) && (resultado != 1)){
-            exit(0);
-          }
-          break;
-        default:
-          resultado = -1;
-          break;
+/*
+      if((resultado = varianteA(mapatual)) == 0){
+        fpout = writefile(fpout, mapatual, -1);
+        retval = freemapa(mapatual);
+        if(retval != 0){
+          //printf("\nErro a libertar a memoria!");
+          exit(0);
+        }
+        continue;
       }
+*/
+      //Implementar Solver Aqui
+      resultado = Solver(mapatual);
 
       fpout = writefile(fpout, mapatual, resultado);
-
-      retval = freemapa(mapatual, modo);
+      retval = freemapa(mapatual);
       if(retval != 0){
         //printf("\nErro a libertar a memoria!");
         exit(0);
