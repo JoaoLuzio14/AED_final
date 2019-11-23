@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
         filename = (char*) malloc(strlen(argv[1]) + 1);
         strcpy(filename, argv[1]);
         token = strrchr(filename, ch);
-        if((retval = strcmp(token, ".camp0")) != 0){
+        if((retval = strcmp(token, ".camp")) != 0){
             exit(0);
         }
         else{
@@ -36,10 +36,10 @@ int main(int argc, char *argv[]){
         fpin = openfile(fpin, argv[1], 0);
     }
 
-    fileout = (char*) malloc(strlen(filename) + strlen(".tents0") + 1);
+    fileout = (char*) malloc(strlen(filename) + strlen(".tents") + 1);
     strcpy(fileout, filename);
     free(filename);
-    filename = strcat(fileout, ".tents0");
+    filename = strcat(fileout, ".tents");
     fpout = openfile(fpout, filename, 1);
     free(fileout);
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
       }
-/*
+
       if((resultado = varianteA(mapatual)) == 0){
         fpout = writefile(fpout, mapatual, -1);
         retval = freemapa(mapatual);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
         }
         continue;
       }
-*/
+
       //Implementar Solver Aqui
       resultado = Solver(mapatual);
 

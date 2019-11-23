@@ -23,7 +23,7 @@ int lermapa(Mapa *maps, FILE *fp){
     //printf("\nErro ao ler o ficheiro!\n");
     exit(0);
   }
-  printf("\n%d %d\n", maps->L, maps->C);
+  //printf("\n%d %d\n", maps->L, maps->C);
 
   /*Alocação de memória e leitura de dados relativamente ao número de tendas possivéis em cada linha e coluna*/
   maps->TendasLinhas = (int*) malloc(sizeof(int) * maps->L);
@@ -37,9 +37,9 @@ int lermapa(Mapa *maps, FILE *fp){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
     }
-    printf("%d ", maps->TendasLinhas[i]);
+    //printf("%d ", maps->TendasLinhas[i]);
   }
-  printf("\n");
+  //printf("\n");
   maps->TendasColunas = (int*) malloc(sizeof(int) * maps->C);
   if(maps->TendasColunas == (int*) NULL){
     //printf("\nErro ao alocar memoria!\n");
@@ -51,9 +51,9 @@ int lermapa(Mapa *maps, FILE *fp){
         //printf("\nErro ao ler o ficheiro!\n");
         exit(0);
     }
-    printf("%d ", maps->TendasColunas[i]);
+    //printf("%d ", maps->TendasColunas[i]);
   }
-  printf("\n");
+  //printf("\n");
   /*Alocação de memória e leitura do mapa de jogo*/
   maps->mapa = (char**) malloc(sizeof(char*) * maps->L);
   for(i = 0;i < maps->L;i++){
@@ -68,8 +68,8 @@ int lermapa(Mapa *maps, FILE *fp){
     if(retval != 1){
       exit(0);
     }
-    printf("%s", maps->mapa[i]);
-    printf("\n");
+    //printf("%s", maps->mapa[i]);
+    //printf("\n");
   }
   return 0;
 }
