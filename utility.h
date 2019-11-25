@@ -20,7 +20,7 @@ typedef struct Jogo{
 int varianteA(Mapa *maps);
 int varianteB(Mapa *maps, int cordX, int cordY);
 int Solver(Mapa *maps);
-int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int counttendas, int init);
+int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int counttendas, int init, int ignoradas);
 int RodeiaTenda(Mapa *maps, int a, int b);
 int Adjobj(Mapa *maps, int a, int b);
 

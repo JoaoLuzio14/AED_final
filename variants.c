@@ -24,7 +24,7 @@ int Solver(Mapa *maps){
   }
   //printf("\n");
 
-  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0);
+  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0, 0);
 
   if(resultado == 1){
     for(i = 0;i < maps->L;i++){
@@ -40,7 +40,7 @@ int Solver(Mapa *maps){
   return resultado;
 }
 
-int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int counttendas, int init){
+int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int counttendas, int init, int ignoradas){
   int nextX, nextY, breaker = 0, verif = 0, resultado = 0;
 
   if(counttendas >= maps->TendasTotal) return 1;
@@ -77,7 +77,7 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
         maps->mapa[nextX - 1][nextY] = 'T';
         countX[nextX - 1]++;
         countY[nextY]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1);
+        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
         if(resultado == 1) return 1;
         else{
           maps->mapa[nextX - 1][nextY] = 'O';
@@ -95,7 +95,7 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
         maps->mapa[nextX][nextY - 1] = 'T';
         countX[nextX]++;
         countY[nextY - 1]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1);
+        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
         if(resultado == 1) return 1;
         else{
           maps->mapa[nextX][nextY - 1] = 'O';
@@ -113,7 +113,7 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
         maps->mapa[nextX + 1][nextY] = 'T';
         countX[nextX + 1]++;
         countY[nextY]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1);
+        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
         if(resultado == 1) return 1;
         else{
           maps->mapa[nextX + 1][nextY] = 'O';
@@ -121,7 +121,6 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
           countY[nextY]--;
         }
       }
-
     }
   }
   //pra direita
@@ -132,7 +131,7 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
         maps->mapa[nextX][nextY + 1] = 'T';
         countX[nextX]++;
         countY[nextY + 1]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1);
+        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
         if(resultado == 1) return 1;
         else{
           maps->mapa[nextX][nextY + 1] = 'O';
@@ -141,6 +140,11 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
         }
       }
     }
+  }
+  //sem tenda
+  if(ignoradas < (maps->ArvoresTotal - maps->TendasTotal)){
+    resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas, 1, ignoradas + 1);
+    if(resultado == 1) return 1;
   }
   //printf("\nArvore: %d\tCords: %d %d\n", counttendas, cordX, cordY);
   return  -1;
