@@ -24,6 +24,8 @@ int Solver(Mapa *maps){
   }
   //printf("\n");
 
+  if(tendasdomapa != 0) exit(0); //Neste caso não funciona!
+
   resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0, 0);
 
   if(resultado == 1){
@@ -67,7 +69,6 @@ int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int c
   }
   if(breaker == 0) return -1;
   //printf("New Cords: %d %d\n", nextX, nextY);
-
 
   //pra cima
   if(nextX > 0){
@@ -180,10 +181,10 @@ int varianteB(Mapa *maps, int cordX, int cordY){
 
 int RodeiaTenda(Mapa *maps, int a, int b){
   int i,j;
-  for(i=-1;i<2;i++){
-    for(j=-1;j<2;j++){
+  for(i=-1;i<=1;i++){
+    for(j=-1;j<=1;j++){
       if(((a == 0) && (i==-1)) || ((b==0) && (j==-1)) || ((a == ((maps->L) - 1)) && (i==1)) || ((b == ((maps->C) - 1)) && (j == 1))) continue;
-      if((maps->mapa[a + i][b + j] == 'T') && ((i!=0) && (j!=0))) return 1;
+      if((maps->mapa[a + i][b + j] == 'T') && ((i!=0) || (j!=0))) return 1;
     }
   }
   return 0;

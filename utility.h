@@ -3,13 +3,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 /*Estrutura que guarda os
 dados do mapa de jogo e
 também outros detalhes já
 relacionados com 'in game'*/
 typedef struct Jogo{
     char **mapa; // Mapa original de jogo
-    int L; // Número de linhas da matriz
+    int L; // Número de Linhas da matriz
     int C; // Número de Colunas da matriz
     int *TendasLinhas; //Número de Tendas por Linha
     int *TendasColunas; //Número de Tendas por Coluna
