@@ -4,7 +4,7 @@
 #include "utility.h"
 
 int Solver(Mapa *maps){
-  int i, j, resultado = 14, *countlinhas, *countcolunas, tendasdomapa = 0;
+  int i, j, resultado = 14, *countlinhas, *countcolunas, tendasdomapa = 0, ignoradas = 0;
 
   countlinhas = (int*) calloc(maps->L ,sizeof(int));
   countcolunas = (int*) calloc(maps->C, sizeof(int));
@@ -18,6 +18,10 @@ int Solver(Mapa *maps){
         countcolunas[j]++;
         tendasdomapa++;
       }
+      else if(resultado == 3){
+        maps->mapa[i][j] = 'a';
+        ignoradas++;
+      }
       else if(resultado == 0) maps->mapa[i][j] = 'O';
       //printf("%c", maps->mapa[i][j]);
     }
@@ -26,12 +30,13 @@ int Solver(Mapa *maps){
 
   if(tendasdomapa != 0) exit(0); //Neste caso não funciona!
 
-  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0, 0);
+  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0, ignoradas);
 
   if(resultado == 1){
     for(i = 0;i < maps->L;i++){
       for(j = 0;j < maps->C;j++){
         if(maps->mapa[i][j] == 'O') maps->mapa[i][j] = '.';
+        else if(maps->mapa[i][j] == 'a') maps->mapa[i][j] = 'A';
       }
     }
   }
@@ -172,10 +177,11 @@ int varianteA(Mapa *maps){
 int varianteB(Mapa *maps, int cordX, int cordY){
   int tendavolta = 0, arvoreadj = 0;
   if((cordX < 0) || (cordX >= maps->L) || (cordY < 0) || (cordY >= maps->C)) return 1;
-  if(maps->mapa[cordX][cordY] == 'A') return 1;
   else if(maps->mapa[cordX][cordY] == 'T') return 2;
-  if((tendavolta = RodeiaTenda(maps, cordX, cordY)) == 1) return 1;
-  else if((arvoreadj = Adjobj(maps, cordX, cordY)) == 1) return 1;
+  if((arvoreadj = Adjobj(maps, cordX, cordY)) == 1) return 1;
+  else if(arvoreadj == 2) return 3;
+  else if(maps->mapa[cordX][cordY] == 'A') return 1;
+  else if((tendavolta = RodeiaTenda(maps, cordX, cordY)) == 1) return 1;
   else return 0;
 }
 
@@ -191,22 +197,42 @@ int RodeiaTenda(Mapa *maps, int a, int b){
 }
 
 int Adjobj(Mapa *maps, int a, int b){
-  int detetorarvore = 0;
+  int detetorarvore = 0, contadordearvores = 0;
   //pra cima
   if(a > 0){
-    if(maps->mapa[a - 1][b] == 'A') detetorarvore = 1;
+    if((maps->mapa[a - 1][b] == 'A') || (maps->mapa[a - 1][b] == 'a')){
+      detetorarvore = 1;
+      contadordearvores++;
+    }
   }
+  else contadordearvores++;
   //pra esquerda
   if(b > 0){
-    if(maps->mapa[a][b - 1] == 'A') detetorarvore = 1;
+    if((maps->mapa[a][b - 1] == 'A') || (maps->mapa[a][b - 1] == 'a')){
+      detetorarvore = 1;
+      contadordearvores++;
+    }
   }
+  else contadordearvores++;
   //pra baixo
   if(a < (maps->L - 1)){
-    if(maps->mapa[a + 1][b] == 'A') detetorarvore = 1;
+    if((maps->mapa[a + 1][b] == 'A') || (maps->mapa[a + 1][b] == 'a')){
+     detetorarvore = 1;
+     contadordearvores++;
+   }
   }
+  else contadordearvores++;
   //pra direita
   if(b < (maps->C - 1)){
-    if(maps->mapa[a][b + 1] == 'A') detetorarvore = 1;
+    if((maps->mapa[a][b + 1] == 'A') || (maps->mapa[a][b + 1] == 'a')){
+      detetorarvore = 1;
+      contadordearvores++;
+    }
+  }
+  else contadordearvores++;
+  //Retorno
+  if((maps->mapa[a][b] == 'A') && (contadordearvores == 4)){
+    return 2;
   }
   if(detetorarvore == 0) return 1;
   else return 0;
