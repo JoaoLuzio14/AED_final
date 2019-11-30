@@ -1,15 +1,33 @@
 /************************************************/
-/*     Projecto AED - 1ª Fase de Submissão      */
-/*          Semestre 1 - 2019/2020              */
+/*     Projecto AED - 2ª Fase de Submissão      */
+/*          1º Semestre - 2019/2020             */
 /*João Luzio (IST193096) & José Reis (IST193105)*/
 /*               IST - MEEC                     */
 /************************************************/
+
+/******************************************************************************
+ *
+ * Nome do Ficheiro: project.c
+ * Autor:  GR61 (AED 19/20) - João Luzio (IST193096) & José Reis (IST193105)
+ * Última Revisão: 20 Nov 2019
+ *
+ *****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "utility.h"
 
+/******************************************************************************
+ * main()
+ *
+ * Argumentos: argc (número de argumentos inseridos), argv (vetor de argumentos)
+ * Retorna: Inteiro ('0' - Validação)
+ * Efeitos Colaterais: Cria um ficheiro de saída com extensão '.tents'
+ *
+ * Descrição: Resolve vários mapas (lidos de ficheiro) do jogo 'Trees & Tents'
+ *
+ *****************************************************************************/
 int main(int argc, char *argv[]){
 
     FILE *fpin = (FILE*) NULL;
@@ -67,8 +85,7 @@ int main(int argc, char *argv[]){
         continue;
       }
 
-      //Implementar Solver Aqui
-      resultado = Solver(mapatual);
+      resultado = Solver(mapatual); //Resolve o Mapa!
 
       fpout = writefile(fpout, mapatual, resultado);
       retval = freemapa(mapatual);

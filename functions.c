@@ -1,8 +1,32 @@
+/******************************************************************************
+ *
+ * Nome do Ficheiro: functions.c
+ * Autor:  GR61 (AED 19/20) - João Luzio (IST193096) & José Reis (IST193105)
+ * Última Revisão: 30 Nov 2019
+ *
+ * NOME
+ *     Functions - 4 funções relacionadas com leitura e escrita de ficheiros
+ *
+ * DESCRIÇÃO
+ *		Implementa quatro funçãos auxiliares (lermapa,freemapa,openfile,writefile)
+ *
+ *****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "utility.h"
 
+/******************************************************************************
+ * lermapa()
+ *
+ * Argumentos: 'Input File' e Mapa de Jogo
+ * Retorna: Inteiro ('1' ou '0' - Validação)
+ * Efeitos Colaterais: (nada)
+ *
+ * Descrição: Lê, aloca e guarda os dados do jogo e o mapa na estrutura
+ *
+ *****************************************************************************/
 int lermapa(Mapa *maps, FILE *fp){
   int retval = 0, i;
   char cret;
@@ -74,6 +98,16 @@ int lermapa(Mapa *maps, FILE *fp){
   return 0;
 }
 
+/******************************************************************************
+ * freemapa()
+ *
+ * Argumentos: Mapa de Jogo
+ * Retorna: Inteiro (0' - Validação)
+ * Efeitos Colaterais: (nada)
+ *
+ * Descrição: Liberta a memória alocada para os parêmetros da estrutura do jogo
+ *
+ *****************************************************************************/
 int freemapa(Mapa *maps){
   int retval = 0, i;
   for(i=0;i<maps->L; i++) free(maps->mapa[i]);
@@ -83,6 +117,16 @@ int freemapa(Mapa *maps){
   return retval;
 }
 
+/******************************************************************************
+ * openfile()
+ *
+ * Argumentos: Ponteiro (FILE), Nome do Ficheiro e Modo
+ * Retorna: Ponteiro para ficheiro (FILE)
+ * Efeitos Colaterais: (nada)
+ *
+ * Descrição: Abre um ficheiro para leitura (modo '0') ou escrita (modo '1')
+ *
+ *****************************************************************************/
 FILE *openfile(FILE *fp, char *filename, int mode){
   if(mode == 0){
     fp = fopen(filename, "r");
@@ -90,23 +134,29 @@ FILE *openfile(FILE *fp, char *filename, int mode){
   else if(mode == 1){
     fp = fopen(filename, "w");
   }
-  else{
-    //printf("\nErro ao abrir o ficheiro!\n");
-    exit(0);
-  }
+  else exit(0);
 
-  if(fp == NULL){
-    //printf("\nErro ao abrir o ficheiro!\n");
-    exit(0);
-  }
+  if(fp == NULL) exit(0);
 
   return fp;
 }
 
+/******************************************************************************
+ * writefile()
+ *
+ * Argumentos: Ponteiro (FILE), Mapa de Jogo e Resultado
+ * Returns: Ponteiro para ficheiro (FILE)
+ * Efeitos Colaterais: (nada)
+ *
+ * Descrição: Escreve o resultadodo do mapa no Ficheiro de saída (Output File)
+ *
+ *****************************************************************************/
 FILE *writefile(FILE *fp, Mapa *maps, int resultado){
   int i;
+  /*Escreve 'L C R'*/
   fprintf(fp, "%d %d ", maps->L, maps->C);
   fprintf(fp, "%d\n", resultado);
+  /*Escreve o Mapa Preenchido*/
   if(resultado == 1){
     for(i = 0;i < maps->L;i++){
       fprintf(fp, "%s\n", maps->mapa[i]);

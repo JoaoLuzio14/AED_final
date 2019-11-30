@@ -1,3 +1,16 @@
+/******************************************************************************
+ *
+ * Nome do Ficheiro: utility.h
+ * Autor:  GR61 (AED 19/20) - João Luzio (IST193096) & José Reis (IST193105)
+ * Última Revisão: 22 Nov 2019
+ *
+ * NOME
+ *     Utility - Define a Estrutura do Mapa e as funções para o resolver
+ *
+ * DESCRIÇÃO
+ *		Implementa uma estrtura (Jogo) e define dez funçãos auxiliares
+ *
+ *****************************************************************************/
 #ifndef FUNCTIONS_H_INCLUDED
 #define FUNCTIONS_H_INCLUDED
 
