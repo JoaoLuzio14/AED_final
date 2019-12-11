@@ -84,6 +84,15 @@ int main(int argc, char *argv[]){
         }
         continue;
       }
+      else if(resultado == -1){
+        fpout = writefile(fpout, mapatual, 1);
+        retval = freemapa(mapatual);
+        if(retval != 0){
+          //printf("\nErro a libertar a memoria!");
+          exit(0);
+        }
+        continue;
+      }
 
       resultado = Solver(mapatual); //Resolve o Mapa!
 

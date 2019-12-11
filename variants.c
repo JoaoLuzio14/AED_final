@@ -27,41 +27,49 @@
  *
  *****************************************************************************/
 int Solver(Mapa *maps){
-  int i, j, resultado = 14, *countlinhas, *countcolunas, tendasdomapa = 0, ignoradas = 0;
+  int i, j, resultado = 14, *countlinhas, *countcolunas, tendasdomapa = 0, ignoradas = 0, *vectorcoords, arvoreatual = 0;
   /*Contadores de tendas por linhas e tendas por coluna*/
   countlinhas = (int*) calloc(maps->L ,sizeof(int));
   countcolunas = (int*) calloc(maps->C, sizeof(int));
+  /*Vector que guarda as coordenadas das tendas*/
+  vectorcoords = (int*) calloc(maps->ArvoresTotal + 1, sizeof(int));
   /*Análise de cada elemento do mapa*/
   for(i = 0;i < maps->L;i++){
     //printf("\n");
     for(j = 0;j < maps->C;j++){
-      resultado = varianteB(maps, i, j);
-      if(resultado == 2){
-        countlinhas[i]++;
-        countcolunas[j]++;
-        tendasdomapa++; //Tem uma tenda já colocada...
-      }
-      else if(resultado == 3){
-        maps->mapa[i][j] = 'a';
-        ignoradas++; //Árvore que pode ser ignorada!
-      }
-      else if(resultado == 0) maps->mapa[i][j] = 'O'; //Pode ter tenda!
+      if(maps->mapa[i][j] == 'A'){
+        resultado = varianteB(maps, i, j);
+        if(resultado == 1){
+          ignoradas++; //Árvore que pode ser ignorada!
+          if(ignoradas > (maps->ArvoresTotal - maps->TendasTotal)){
+            free(vectorcoords);
+            free(countlinhas);
+            free(countcolunas);
+            return -1; //Impossivél
+          }
+        }
+        else if(resultado == 2){
+          vectorcoords[arvoreatual] = (i * maps->C) + j;
+          //printf("%d\n", vectorcoords[arvoreatual]);
+          arvoreatual++;
+        }
+        else if(resultado == -1){
+          free(vectorcoords);
+          free(countlinhas);
+          free(countcolunas);
+          return -1;
+        }
       //printf("%c", maps->mapa[i][j]);
+      }
     }
   }
+  vectorcoords[arvoreatual] = -1;
   //printf("\n");
   if(tendasdomapa != 0) exit(0); //Neste caso não funciona!
   /*Colocação Recursiva de Tendas*/
-  resultado = PlaceTents(maps, 0, 0, countlinhas, countcolunas, tendasdomapa, 0, ignoradas);
-  /*Retifica o mapa de modo a retirar os marcadores auxiliares inseridos*/
-  if(resultado == 1){
-    for(i = 0;i < maps->L;i++){
-      for(j = 0;j < maps->C;j++){
-        if(maps->mapa[i][j] == 'O') maps->mapa[i][j] = '.';
-        else if(maps->mapa[i][j] == 'a') maps->mapa[i][j] = 'A';
-      }
-    }
-  }
+  resultado = PlaceTents(maps, 0, vectorcoords, countlinhas, countcolunas, tendasdomapa, ignoradas);
+
+  free(vectorcoords);
   free(countlinhas);
   free(countcolunas);
 
@@ -78,112 +86,83 @@ int Solver(Mapa *maps){
  * Descrição: Encontra uma Árvore e coloca-lhe uma tenda (ou não) se possivél
  *
  *****************************************************************************/
-int PlaceTents(Mapa *maps, int cordX, int cordY, int *countX, int *countY, int counttendas, int init, int ignoradas){
-  int nextX, nextY, breaker = 0, verif = 0, resultado = 0;
-
+int PlaceTents(Mapa *maps, int pos, int *vector, int *countX, int *countY, int counttendas, int ignoradas){
+  int nextX, nextY, verif = 0, resultado = 0;
   /*Verifica se todas a tentas já foram colocadas (Mapa Resolvido!)*/
-  if(counttendas >= maps->TendasTotal) return 1;
+  if(counttendas >= maps->TendasTotal) return 1; // Resolvido!!!
+  else if(vector[pos] == -1) return -1; //Não Existem mais árvores possivéis
   /*Atribuição da próxima coordenada*/
-  nextX = cordX;
-  if((cordX == 0) && (cordY == 0) && (init == 0)) nextY = cordY;
-  else if(cordY == (maps->C - 1)){
-    nextY = 0;
-    nextX++;
-  }
-  else nextY = cordY + 1;
-  /*Procura a próxima árvore no mapa*/
-  while(nextX < maps->L){
-    while(nextY < maps->C){
-      if(maps->mapa[nextX][nextY] == 'A'){
-        breaker = 1;
-        break;
-      }
-      nextY++;
-    }
-    if(breaker == 1) break;
-    nextY = 0;
-    nextX++;
-  }
-  //Verifica se o mapa já acabou
-  if(breaker == 0) return -1;
-  //printf("New Cords: %d %d\n", nextX, nextY);
-
+  nextX = vector[pos] / maps->C;
+  nextY = vector[pos] % maps->C;
+  if((nextX >= 2) && (maps->TendasLinhas[nextX - 2] != countX[nextX - 2])) return -1; //Verifica se a linha já está preenchida.
   /*Coloca tenda numa das coordedas adjacentes da árvore, ou não coloca*/
   //pra cima
   if(nextX > 0){
-    if(maps->mapa[nextX - 1][nextY] == 'O'){
-      if(((verif = RodeiaTenda(maps, nextX - 1, nextY)) == 0) && (maps->TendasLinhas[nextX - 1] >= countX[nextX - 1] + 1) && (maps->TendasColunas[nextY] >= countY[nextY] + 1)){
-        //printf("\nCima %d\n", counttendas + 1);
-        maps->mapa[nextX - 1][nextY] = 'T'; //Coloca a Tenda
-        countX[nextX - 1]++;
-        countY[nextY]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
-        if(resultado == 1) return 1; //Mapa Resolvido!
-        else{
-          maps->mapa[nextX - 1][nextY] = 'O'; //Apaga a Tenda
-          countX[nextX - 1]--;
-          countY[nextY]--;
-        }
+    if(((verif = RodeiaTenda(maps, nextX - 1, nextY)) == 0) && (maps->TendasLinhas[nextX - 1] >= countX[nextX - 1] + 1) && (maps->TendasColunas[nextY] >= countY[nextY] + 1) && (maps->mapa[nextX - 1][nextY] != 'A') && (maps->mapa[nextX - 1][nextY] != 'T')){
+      //printf("\nCima %d\n", counttendas + 1);
+      maps->mapa[nextX - 1][nextY] = 'T'; //Coloca a Tenda
+      countX[nextX - 1]++;
+      countY[nextY]++;
+      resultado = PlaceTents(maps, pos + 1, vector, countX, countY, counttendas + 1, ignoradas);
+      if(resultado == 1) return 1; //Mapa Resolvido!
+      else{
+        maps->mapa[nextX - 1][nextY] = '.'; //Apaga a Tenda
+        countX[nextX - 1]--;
+        countY[nextY]--;
       }
     }
   }
   //pra esquerda
   if(nextY > 0){
-    if(maps->mapa[nextX][nextY - 1] == 'O'){
-      if(((verif = RodeiaTenda(maps, nextX, nextY - 1)) == 0) && (maps->TendasLinhas[nextX] >= countX[nextX] + 1) && (maps->TendasColunas[nextY - 1] >= countY[nextY - 1] + 1)){
-        //printf("\nEsquerda %d\n", counttendas + 1);
-        maps->mapa[nextX][nextY - 1] = 'T'; //Coloca a Tenda
-        countX[nextX]++;
-        countY[nextY - 1]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
-        if(resultado == 1) return 1; //Mapa Resolvido!
-        else{
-          maps->mapa[nextX][nextY - 1] = 'O'; //Apaga a Tenda
-          countX[nextX]--;
-          countY[nextY - 1]--;
-        }
+    if(((verif = RodeiaTenda(maps, nextX, nextY - 1)) == 0) && (maps->TendasLinhas[nextX] >= countX[nextX] + 1) && (maps->TendasColunas[nextY - 1] >= countY[nextY - 1] + 1) && (maps->mapa[nextX][nextY - 1] != 'A') && (maps->mapa[nextX][nextY - 1] != 'T')){
+      //printf("\nEsquerda %d\n", counttendas + 1);
+      maps->mapa[nextX][nextY - 1] = 'T'; //Coloca a Tenda
+      countX[nextX]++;
+      countY[nextY - 1]++;
+      resultado = PlaceTents(maps, pos + 1, vector, countX, countY, counttendas + 1, ignoradas);
+      if(resultado == 1) return 1; //Mapa Resolvido!
+      else{
+        maps->mapa[nextX][nextY - 1] = '.'; //Apaga a Tenda
+        countX[nextX]--;
+        countY[nextY - 1]--;
       }
     }
   }
   //pra baixo
   if(nextX < (maps->L - 1)){
-    if(maps->mapa[nextX + 1][nextY] == 'O'){
-      if(((verif = RodeiaTenda(maps, nextX + 1, nextY)) == 0) && (maps->TendasLinhas[nextX + 1] >= countX[nextX + 1] + 1) && (maps->TendasColunas[nextY] >= countY[nextY] + 1)){
-        //printf("\nBaixo %d\n", counttendas + 1);
-        maps->mapa[nextX + 1][nextY] = 'T'; //Coloca a Tenda
-        countX[nextX + 1]++;
-        countY[nextY]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
-        if(resultado == 1) return 1; //Mapa Resolvido!
-        else{
-          maps->mapa[nextX + 1][nextY] = 'O'; //Apaga a Tenda
-          countX[nextX + 1]--;
-          countY[nextY]--;
-        }
+    if(((verif = RodeiaTenda(maps, nextX + 1, nextY)) == 0) && (maps->TendasLinhas[nextX + 1] >= countX[nextX + 1] + 1) && (maps->TendasColunas[nextY] >= countY[nextY] + 1) && (maps->mapa[nextX + 1][nextY] != 'A') && (maps->mapa[nextX + 1][nextY] != 'T')){
+      //printf("\nBaixo %d\n", counttendas + 1);
+      maps->mapa[nextX + 1][nextY] = 'T'; //Coloca a Tenda
+      countX[nextX + 1]++;
+      countY[nextY]++;
+      resultado = PlaceTents(maps, pos + 1, vector, countX, countY, counttendas + 1, ignoradas);
+      if(resultado == 1) return 1; //Mapa Resolvido!
+      else{
+        maps->mapa[nextX + 1][nextY] = '.'; //Apaga a Tenda
+        countX[nextX + 1]--;
+        countY[nextY]--;
       }
     }
   }
   //pra direita
   if(nextY < (maps->C - 1)){
-    if(maps->mapa[nextX][nextY + 1] == 'O'){
-      if(((verif = RodeiaTenda(maps, nextX, nextY + 1)) == 0) && (maps->TendasLinhas[nextX] >= countX[nextX] + 1) && (maps->TendasColunas[nextY + 1] >= countY[nextY + 1] + 1)){
-        //printf("\nDireita %d\n", counttendas + 1);
-        maps->mapa[nextX][nextY + 1] = 'T'; //Coloca a Tenda
-        countX[nextX]++;
-        countY[nextY + 1]++;
-        resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas + 1, 1, ignoradas);
-        if(resultado == 1) return 1; //Mapa Resolvido!
-        else{
-          maps->mapa[nextX][nextY + 1] = 'O'; //Apaga a Tenda
-          countX[nextX]--;
-          countY[nextY + 1]--;
-        }
+    if(((verif = RodeiaTenda(maps, nextX, nextY + 1)) == 0) && (maps->TendasLinhas[nextX] >= countX[nextX] + 1) && (maps->TendasColunas[nextY + 1] >= countY[nextY + 1] + 1) && (maps->mapa[nextX][nextY + 1] != 'A') && (maps->mapa[nextX][nextY + 1] != 'T')){
+      //printf("\nDireita %d\n", counttendas + 1);
+      maps->mapa[nextX][nextY + 1] = 'T'; //Coloca a Tenda
+      countX[nextX]++;
+      countY[nextY + 1]++;
+      resultado = PlaceTents(maps, pos + 1, vector, countX, countY, counttendas + 1, ignoradas);
+      if(resultado == 1) return 1; //Mapa Resolvido!
+      else{
+        maps->mapa[nextX][nextY + 1] = '.'; //Apaga a Tenda
+        countX[nextX]--;
+        countY[nextY + 1]--;
       }
     }
   }
   //sem tenda
   if(ignoradas < (maps->ArvoresTotal - maps->TendasTotal)){
-    resultado = PlaceTents(maps, nextX, nextY, countX, countY, counttendas, 1, ignoradas + 1);
+    resultado = PlaceTents(maps, pos + 1, vector, countX, countY, counttendas, ignoradas + 1);
     if(resultado == 1) return 1; //Mapa Resolvido!
   }
   //printf("\nArvore: %d\tCords: %d %d\n", counttendas, cordX, cordY);
@@ -207,6 +186,16 @@ int varianteA(Mapa *maps){
   for(j = 0; j < maps->C; j++) sumcolunas += maps->TendasColunas[j];
   if(sumlinhas != sumcolunas) return 0; //Sem solução
   else maps->TendasTotal = sumlinhas;
+  if(maps->TendasTotal == 0) return -1;
+  /*Verifica: Possibilidade de linha/coluna?*/
+  for(i = 0; i < maps->L; i++){
+    if(maps->TendasLinhas[i] < 0) return 0;
+    if(((maps->C % 2 == 0) && (maps->TendasLinhas[i] > maps->C/2)) || ((maps->C % 2 == 1) && (maps->TendasLinhas[i] > (maps->C/2) + 1))) return 0;
+  }
+  for(j = 0; j < maps->C; j++){
+    if(maps->TendasColunas[j] < 0) return 0;
+    if(((maps->L % 2 == 0) && (maps->TendasColunas[j] > maps->L/2)) || ((maps->L % 2 == 1) && (maps->TendasColunas[j] > (maps->L/2) + 1))) return 0;
+  }
   /*Verifica: total de tendas menor ou igual ao total de árvores?*/
   for(i = 0; i < maps->L; i++){
     for(j = 0; j < maps->C; j++){
@@ -222,22 +211,20 @@ int varianteA(Mapa *maps){
  * varianteB()
  *
  * Argumentos: Mapa de Jogo, Coordenadas (X,Y)
- * Retorna: Inteiro (4 resultados possíveis: '0,1,2 ou 3');
+ * Retorna: Inteiro (4 resultados possíveis: '-1,1,2');
  * Efeitos Colaterais: (nada)
  *
- * Descrição: Inspeciona um elemento do mapa de modo a 'rotolá-lo'
+ * Descrição: Inspeciona uma árvore do mapa de modo a verificar se é ignoravél
  *
  *****************************************************************************/
 int varianteB(Mapa *maps, int cordX, int cordY){
-  int tendavolta = 0, arvoreadj = 0;
+  int arvoreadj = 0;
   /*Verifica: coordenada dentro dos limites do mapa?*/
-  if((cordX < 0) || (cordX >= maps->L) || (cordY < 0) || (cordY >= maps->C)) return 1;
-  else if(maps->mapa[cordX][cordY] == 'T') return 2; //Tem uma tenda? Estranho.
-  if((arvoreadj = Adjobj(maps, cordX, cordY)) == 1) return 1; //Sem Árvore Adj
-  else if(arvoreadj == 2) return 3; //Árvore Ignoravél (Adjacentes bloqueiam)
-  else if(maps->mapa[cordX][cordY] == 'A') return 1;//Árvore comum
-  else if((tendavolta = RodeiaTenda(maps, cordX, cordY)) == 1) return 1;//???
-  else return 0;//É um espaço susceptivél a albergar uma tenda!
+  if((cordX < 0) || (cordX >= maps->L) || (cordY < 0) || (cordY >= maps->C)) return -1;
+  arvoreadj = Adjobj(maps, cordX, cordY);
+  if(arvoreadj == 2) return 1; //Árvore Ignoravél (Adjacentes bloqueiam)
+  else if(arvoreadj == 1) return 2;//Árvore comum
+  else return -1;
 }
 
 /******************************************************************************
@@ -274,43 +261,37 @@ int RodeiaTenda(Mapa *maps, int a, int b){
  *
  *****************************************************************************/
 int Adjobj(Mapa *maps, int a, int b){
-  int detetorarvore = 0, contadordearvores = 0;
+  int contadordearvores = 0;
   //pra cima
   if(a > 0){
-    if((maps->mapa[a - 1][b] == 'A') || (maps->mapa[a - 1][b] == 'a')){
-      detetorarvore = 1;
+    if((maps->mapa[a - 1][b] == 'A') || (maps->TendasLinhas[a - 1] == 0)){
       contadordearvores++;
     }
   }
   else contadordearvores++;
   //pra esquerda
   if(b > 0){
-    if((maps->mapa[a][b - 1] == 'A') || (maps->mapa[a][b - 1] == 'a')){
-      detetorarvore = 1;
+    if((maps->mapa[a][b - 1] == 'A') || (maps->TendasColunas[b -  1] == 0)){
       contadordearvores++;
     }
+
   }
   else contadordearvores++;
   //pra baixo
   if(a < (maps->L - 1)){
-    if((maps->mapa[a + 1][b] == 'A') || (maps->mapa[a + 1][b] == 'a')){
-     detetorarvore = 1;
+    if((maps->mapa[a + 1][b] == 'A') || (maps->TendasLinhas[a + 1] == 0)){
      contadordearvores++;
    }
   }
   else contadordearvores++;
   //pra direita
   if(b < (maps->C - 1)){
-    if((maps->mapa[a][b + 1] == 'A') || (maps->mapa[a][b + 1] == 'a')){
-      detetorarvore = 1;
+    if((maps->mapa[a][b + 1] == 'A') || (maps->TendasColunas[b + 1] == 0)){
       contadordearvores++;
     }
   }
   else contadordearvores++;
   //Retorno
-  if((maps->mapa[a][b] == 'A') && (contadordearvores == 4)){
-    return 2;
-  }
-  if(detetorarvore == 0) return 1;
-  else return 0;
+  if (contadordearvores == 4) return 2;
+  else return 1;
 }
