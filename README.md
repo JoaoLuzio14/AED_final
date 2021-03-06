@@ -1,6 +1,6 @@
 # Trees & Tents - AED_final
 
-**Institution**: Insituto Superior Técnico
+**Institution**: [Instituto Superior Técnico](https://tecnico.ulisboa.pt/en/)
 
 **Authors**: João Luzio (IST193096) & José Reis (IST193105)
 
